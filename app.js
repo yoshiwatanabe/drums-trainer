@@ -2,9 +2,6 @@
 
 const state = {
     audioCtx: null,
-    audioMap: {},
-    audioLookup: new Map(),
-    buffers: {},
     patterns: [],
     filtered: [],
     currentPattern: null,
@@ -21,7 +18,6 @@ window.addEventListener('DOMContentLoaded', initApp);
 async function initApp() {
     cacheDom();
     bindUi();
-    await loadAudioMap();
     await loadPatterns();
     renderPatternList();
     if (state.filtered.length) {
@@ -65,16 +61,6 @@ function bindUi() {
     dom.loopToggle.addEventListener('change', (e) => {
         state.isLooping = e.target.checked;
     });
-}
-
-async function loadAudioMap() {
-    const res = await fetch('audio/sample-map.json');
-    if (!res.ok) {
-        console.error('Failed to fetch audio map');
-        return;
-    }
-    state.audioMap = await res.json();
-    state.audioLookup = buildAudioLookup(state.audioMap);
 }
 
 async function loadPatterns() {
@@ -230,7 +216,6 @@ async function playCurrent() {
         stopPlayback();
     }
     state.isPlaying = true;
-    await ensureBuffersLoaded();
     schedulePattern(state.currentPattern);
 }
 
@@ -242,35 +227,15 @@ function stopPlayback() {
     state.isPlaying = false;
 }
 
-async function ensureBuffersLoaded() {
-    const entries = Object.entries(state.audioMap);
-    for (const [key, info] of entries) {
-        if (state.buffers[key]) continue;
-        const res = await fetch(info.file);
-        const arrayBuffer = await res.arrayBuffer();
-        state.buffers[key] = await state.audioCtx.decodeAudioData(arrayBuffer.slice(0));
-    }
-}
-
 function schedulePattern(pattern) {
     if (!pattern.events) return;
     const bpm = state.bpm;
     const secondsPerBeat = 60 / bpm;
     const startTime = state.audioCtx.currentTime + 0.1;
     pattern.events.forEach((evt) => {
-        const sound = getBufferForNote(evt.note);
-        if (!sound) return;
-        const { buffer, infoKey } = sound;
-        const source = state.audioCtx.createBufferSource();
-        source.buffer = buffer;
-        const gain = state.audioCtx.createGain();
-        const vel = evt.velocity ? evt.velocity / 127 : 1;
-        const trimDb = state.audioMap[infoKey]?.velocityTrim || 0;
-        const trim = Math.pow(10, trimDb / 20);
-        gain.gain.value = vel * trim;
-        source.connect(gain).connect(state.audioCtx.destination);
+        const velocity = evt.velocity ? evt.velocity / 127 : 0.7;
         const when = startTime + evt.time * secondsPerBeat;
-        source.start(when);
+        synthesizeDrumSound(evt.note, when, velocity);
     });
     if (state.isLooping) {
         const loopLength = pattern.loop_length_beats || 4;
@@ -279,20 +244,213 @@ function schedulePattern(pattern) {
     }
 }
 
-function buildAudioLookup(map) {
-    const lookup = new Map();
-    Object.entries(map).forEach(([key, info]) => {
-        lookup.set(key, key);
-        (info.aliases || []).forEach((alias) => lookup.set(alias, key));
-    });
-    return lookup;
+function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
+    const ctx = state.audioCtx;
+    const now = startTime;
+    
+    // Normalize instrument name (handle aliases)
+    const drumType = normalizeDrumName(instrument);
+    
+    switch (drumType) {
+        case 'kick':
+            synthKick(ctx, now, velocity);
+            break;
+        case 'snare':
+            synthSnare(ctx, now, velocity);
+            break;
+        case 'hihat_closed':
+            synthHiHat(ctx, now, velocity, false);
+            break;
+        case 'hihat_open':
+            synthHiHat(ctx, now, velocity, true);
+            break;
+        case 'ride':
+        case 'ride_bell':
+            synthRide(ctx, now, velocity);
+            break;
+        case 'crash_a':
+        case 'crash_b':
+            synthCrash(ctx, now, velocity);
+            break;
+        case 'tom_high':
+        case 'tom_mid':
+        case 'tom_floor':
+            synthTom(ctx, now, velocity, drumType);
+            break;
+        case 'rim':
+            synthRim(ctx, now, velocity);
+            break;
+        default:
+            console.warn('Unknown drum:', instrument);
+    }
 }
 
-function getBufferForNote(note) {
-    const key = state.audioLookup.get(note) || note;
-    const buffer = state.buffers[key];
-    if (!buffer) return null;
-    return { buffer, infoKey: key };
+function normalizeDrumName(name) {
+    const aliases = {
+        'bass': 'kick',
+        'bd': 'kick',
+        'sn': 'snare',
+        'hhc': 'hihat_closed',
+        'hho': 'hihat_open',
+        'rc': 'ride',
+        'rb': 'ride_bell',
+        'cr1': 'crash_a',
+        'cr2': 'crash_b',
+        't1': 'tom_high',
+        't2': 'tom_mid',
+        'ft': 'tom_floor',
+        'rs': 'rim'
+    };
+    return aliases[name] || name;
+}
+
+function synthKick(ctx, time, velocity) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.frequency.setValueAtTime(150, time);
+    osc.frequency.exponentialRampToValueAtTime(40, time + 0.05);
+    
+    gain.gain.setValueAtTime(velocity, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+    
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.4);
+}
+
+function synthSnare(ctx, time, velocity) {
+    // Tone component
+    const osc = ctx.createOscillator();
+    const oscGain = ctx.createGain();
+    osc.frequency.setValueAtTime(180, time);
+    oscGain.gain.setValueAtTime(velocity * 0.3, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+    osc.connect(oscGain).connect(ctx.destination);
+    
+    // Noise component
+    const bufferSize = ctx.sampleRate * 0.2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseGain = ctx.createGain();
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.setValueAtTime(1000, time);
+    
+    noiseGain.gain.setValueAtTime(velocity * 0.5, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+    
+    noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.15);
+    noise.start(time);
+}
+
+function synthHiHat(ctx, time, velocity, open = false) {
+    const bufferSize = ctx.sampleRate * (open ? 0.3 : 0.08);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(7000, time);
+    const gain = ctx.createGain();
+    
+    gain.gain.setValueAtTime(velocity * 0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + (open ? 0.3 : 0.08));
+    
+    noise.connect(filter).connect(gain).connect(ctx.destination);
+    noise.start(time);
+}
+
+function synthRide(ctx, time, velocity) {
+    const bufferSize = ctx.sampleRate * 0.5;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(3000, time);
+    filter.Q.setValueAtTime(1, time);
+    const gain = ctx.createGain();
+    
+    gain.gain.setValueAtTime(velocity * 0.25, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+    
+    noise.connect(filter).connect(gain).connect(ctx.destination);
+    noise.start(time);
+}
+
+function synthCrash(ctx, time, velocity) {
+    const bufferSize = ctx.sampleRate * 1.5;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(5000, time);
+    filter.Q.setValueAtTime(0.5, time);
+    const gain = ctx.createGain();
+    
+    gain.gain.setValueAtTime(velocity * 0.4, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 1.5);
+    
+    noise.connect(filter).connect(gain).connect(ctx.destination);
+    noise.start(time);
+}
+
+function synthTom(ctx, time, velocity, type) {
+    const frequencies = {
+        'tom_high': 220,
+        'tom_mid': 150,
+        'tom_floor': 100
+    };
+    const freq = frequencies[type] || 150;
+    
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.frequency.setValueAtTime(freq, time);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.7, time + 0.08);
+    
+    gain.gain.setValueAtTime(velocity * 0.6, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+    
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.3);
+}
+
+function synthRim(ctx, time, velocity) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.frequency.setValueAtTime(400, time);
+    osc.frequency.exponentialRampToValueAtTime(200, time + 0.01);
+    
+    gain.gain.setValueAtTime(velocity * 0.4, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+    
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.05);
 }
 
 function validatePattern(pattern) {
