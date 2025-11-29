@@ -1,74 +1,99 @@
 {
-  "kick": {
-    "file": "audio/Bass-Drum-1.wav",
-    "aliases": ["bass", "bd"],
-    "velocityTrim": 0,
-    "description": "Punchy bass drum hit"
-  },
-  "snare": {
-    "file": "audio/Kawai-K11-Bob-Snare.wav",
-    "aliases": ["sn"],
-    "velocityTrim": 0,
-    "description": "Tight snare sample"
-  },
-  "hihat_closed": {
-    "file": "audio/Korg-M1-Closed-Hi-Hat.wav",
-    "aliases": ["hhc"],
-    "velocityTrim": -3,
-    "description": "Closed hi-hat"
-  },
-  "hihat_open": {
-    "file": "audio/Korg-M1-Open-Hi-Hat.wav",
-    "aliases": ["hho"],
-    "velocityTrim": -3,
-    "description": "Open hi-hat"
-  },
-  "ride": {
-    "file": "audio/Korg-N1R-Ride-Cymbal.wav",
-    "aliases": ["rc"],
-    "velocityTrim": -2,
-    "description": "Ride cymbal bow"
-  },
-  "ride_bell": {
-    "file": "audio/Korg-N1R-Ride-Bell.wav",
-    "aliases": ["rb"],
-    "velocityTrim": -2,
-    "description": "Ride bell"
-  },
-  "crash_a": {
-    "file": "audio/Crash-Cymbal-1.wav",
-    "aliases": ["cr1"],
-    "velocityTrim": -4,
-    "description": "Crash cymbal bright"
-  },
-  "crash_b": {
-    "file": "audio/Crash-Cymbal-2.wav",
-    "aliases": ["cr2"],
-    "velocityTrim": -4,
-    "description": "Crash cymbal dark"
-  },
-  "tom_high": {
-    "file": "audio/Hi-Tom-1.wav",
-    "aliases": ["t1"],
-    "velocityTrim": -1,
-    "description": "High tom"
-  },
-  "tom_mid": {
-    "file": "audio/Low-Tom-1.wav",
-    "aliases": ["t2"],
-    "velocityTrim": -1,
-    "description": "Mid/low tom"
-  },
-  "tom_floor": {
-    "file": "audio/Floor-Tom-1.wav",
-    "aliases": ["ft"],
-    "velocityTrim": -1,
-    "description": "Floor tom"
-  },
-  "rim": {
-    "file": "audio/Rim.wav",
-    "aliases": ["rs"],
-    "velocityTrim": -6,
-    "description": "Rim shot"
-  }
+    "kick": {
+        "file": "audio/Bass-Drum-1.wav",
+        "aliases": [
+            "bass",
+            "bd"
+        ],
+        "velocityTrim": 0,
+        "description": "Punchy bass drum hit"
+    },
+    "snare": {
+        "file": "audio/Kawai-K11-Bob-Snare.wav",
+        "aliases": [
+            "sn"
+        ],
+        "velocityTrim": 0,
+        "description": "Tight snare sample"
+    },
+    "hihat_closed": {
+        "file": "audio/Korg-M1-Closed-Hi-Hat.wav",
+        "aliases": [
+            "hhc"
+        ],
+        "velocityTrim": -3,
+        "description": "Closed hi-hat"
+    },
+    "hihat_open": {
+        "file": "audio/Korg-M1-Open-Hi-Hat.wav",
+        "aliases": [
+            "hho"
+        ],
+        "velocityTrim": -3,
+        "description": "Open hi-hat"
+    },
+    "ride": {
+        "file": "audio/Korg-N1R-Ride-Cymbal.wav",
+        "aliases": [
+            "rc"
+        ],
+        "velocityTrim": -2,
+        "description": "Ride cymbal bow"
+    },
+    "ride_bell": {
+        "file": "audio/Korg-N1R-Ride-Bell.wav",
+        "aliases": [
+            "rb"
+        ],
+        "velocityTrim": -2,
+        "description": "Ride bell"
+    },
+    "crash_a": {
+        "file": "audio/Crash-Cymbal-1.wav",
+        "aliases": [
+            "cr1"
+        ],
+        "velocityTrim": -4,
+        "description": "Crash cymbal bright"
+    },
+    "crash_b": {
+        "file": "audio/Crash-Cymbal-2.wav",
+        "aliases": [
+            "cr2"
+        ],
+        "velocityTrim": -4,
+        "description": "Crash cymbal dark"
+    },
+    "tom_high": {
+        "file": "audio/Hi-Tom-1.wav",
+        "aliases": [
+            "t1"
+        ],
+        "velocityTrim": -1,
+        "description": "High tom"
+    },
+    "tom_mid": {
+        "file": "audio/Low-Tom-1.wav",
+        "aliases": [
+            "t2"
+        ],
+        "velocityTrim": -1,
+        "description": "Mid/low tom"
+    },
+    "tom_floor": {
+        "file": "audio/Floor-Tom-1.wav",
+        "aliases": [
+            "ft"
+        ],
+        "velocityTrim": -1,
+        "description": "Floor tom"
+    },
+    "rim": {
+        "file": "audio/Rim.wav",
+        "aliases": [
+            "rs"
+        ],
+        "velocityTrim": -6,
+        "description": "Rim shot"
+    }
 }

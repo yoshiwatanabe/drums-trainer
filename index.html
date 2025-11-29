@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drum Practice Trainer</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="https://unpkg.com/vexflow@4.2.4/build/umd/vexflow.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Drum Practice Trainer</h1>
+    </header>
+    <main>
+      <section id="sidebar">
+        <h2>Patterns</h2>
+        <div class="filter-group">
+          <label for="searchInput">Search</label>
+          <input id="searchInput" type="text" placeholder="title..." />
+        </div>
+        <div class="filter-group">
+          <label for="tagInput">Tags</label>
+          <input id="tagInput" type="text" placeholder="rock hihat-open" />
+        </div>
+        <div class="filter-group">
+          <label for="bpmRange">BPM</label>
+          <input id="bpmRange" type="range" min="60" max="200" value="120" />
+          <span id="bpmRangeValue">120</span>
+        </div>
+        <ul id="patternList"></ul>
+      </section>
+      <section id="content">
+        <div id="patternMeta">
+          <h2 id="patternTitle">Select a pattern</h2>
+          <p id="patternTags"></p>
+        </div>
+        <div id="controls">
+          <label>BPM
+            <input id="bpmInput" type="number" min="40" max="240" value="120" />
+          </label>
+          <button id="playBtn">Play</button>
+          <button id="stopBtn">Stop</button>
+          <label>
+            <input id="loopToggle" type="checkbox" checked /> Loop
+          </label>
+        </div>
+        <div id="notation"></div>
+        <div id="patternDetails"></div>
+      </section>
+    </main>
+  </body>
+</html>
