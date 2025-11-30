@@ -22,14 +22,18 @@ async function initApp() {
     cacheDom();
     bindUi();
     setBpm(70);
+    showLoading('Loading audio samples...');
     await loadAudioSamples();
+    showLoading('Loading pattern index...');
     await loadIndex();
     renderGroupList();
+    hideLoading();
 }
 
 function cacheDom() {
     dom.groupList = document.getElementById('groupList');
     dom.patternsGrid = document.getElementById('patternsGrid');
+    dom.loadingIndicator = document.getElementById('loadingIndicator');
     dom.bpmInput = document.getElementById('bpmInput');
     dom.bpmRange = document.getElementById('bpmRange');
     dom.bpmValue = document.getElementById('bpmValue');
@@ -108,7 +112,7 @@ async function loadIndex() {
         }
 
         const indexData = await indexResponse.json();
-        
+
         // Check version
         if (indexData.version === "2.0" && indexData.groups) {
             state.groups = indexData.groups;
@@ -127,23 +131,23 @@ function renderGroupList() {
     state.groups.forEach(group => {
         const groupDiv = document.createElement('div');
         groupDiv.className = 'group';
-        
+
         const numPages = Math.ceil(group.patterns.length / PATTERNS_PER_PAGE);
-        
+
         const headerDiv = document.createElement('div');
         headerDiv.className = 'group-header';
         headerDiv.innerHTML = `
             <span class="group-title">${group.title}</span>
             <span class="group-count">${group.patterns.length} patterns</span>
         `;
-        
+
         headerDiv.addEventListener('click', () => {
             groupDiv.classList.toggle('expanded');
         });
-        
+
         const pagesDiv = document.createElement('div');
         pagesDiv.className = 'group-pages';
-        
+
         for (let i = 0; i < numPages; i++) {
             const start = i * PATTERNS_PER_PAGE;
             const end = Math.min(start + PATTERNS_PER_PAGE, group.patterns.length);
@@ -153,7 +157,7 @@ function renderGroupList() {
             pageBtn.addEventListener('click', () => loadGroupPage(group, i));
             pagesDiv.appendChild(pageBtn);
         }
-        
+
         groupDiv.appendChild(headerDiv);
         groupDiv.appendChild(pagesDiv);
         dom.groupList.appendChild(groupDiv);
@@ -163,7 +167,9 @@ function renderGroupList() {
 async function loadGroupPage(group, pageIndex) {
     // Load patterns if not already loaded
     if (!state.loadedPatterns[group.id]) {
+        showLoading(`Loading ${group.title}...`);
         await loadGroupPatterns(group);
+        hideLoading();
     }
 
     const patterns = state.loadedPatterns[group.id];
@@ -172,15 +178,15 @@ async function loadGroupPage(group, pageIndex) {
     const pagePatterns = patterns.slice(start, end);
 
     state.currentPage = { group, pageIndex, patterns: pagePatterns };
-    
+
     renderPatternsGrid(pagePatterns);
-    
+
     // Update active state
     document.querySelectorAll('.page-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.group-header').forEach(h => h.classList.remove('loaded'));
     document.querySelectorAll('.group').forEach(g => g.classList.remove('expanded'));
-    
-    const groupDiv = [...dom.groupList.children].find(div => 
+
+    const groupDiv = [...dom.groupList.children].find(div =>
         div.querySelector('.group-title').textContent === group.title
     );
     if (groupDiv) {
@@ -192,7 +198,7 @@ async function loadGroupPage(group, pageIndex) {
 
 async function loadGroupPatterns(group) {
     const patterns = [];
-    
+
     for (const filename of group.patterns) {
         try {
             let patternResponse;
@@ -201,7 +207,7 @@ async function loadGroupPatterns(group) {
             } else {
                 patternResponse = await fetch(`patterns/${filename}`);
             }
-            
+
             if (patternResponse.ok) {
                 const pattern = await patternResponse.json();
                 patterns.push(pattern);
@@ -210,7 +216,7 @@ async function loadGroupPatterns(group) {
             console.warn(`Failed to load ${filename}:`, error);
         }
     }
-    
+
     state.loadedPatterns[group.id] = patterns;
     console.log(`Loaded ${patterns.length} patterns for group ${group.id}`);
 }
@@ -279,7 +285,7 @@ function renderNotation(pattern, container) {
 
     vfData.staves.forEach((staveDef, index) => {
         const stave = new VF.Stave(10, 10, width - 20);
-        
+
         if (staveDef.timeSignature) {
             stave.addTimeSignature(staveDef.timeSignature);
         }
@@ -288,7 +294,7 @@ function renderNotation(pattern, container) {
 
         const voices = staveDef.voices.map((voiceDef) => {
             const clef = voiceDef.clef || 'treble';
-            
+
             const notes = voiceDef.notes.map((note) => {
                 if (note.duration && note.duration.includes('r')) {
                     return new VF.StaveNote({
@@ -323,7 +329,7 @@ async function togglePlayPattern(pattern, playBtn) {
     if (!state.audioCtx) {
         state.audioCtx = new AudioContext();
     }
-    
+
     if (state.audioCtx.state === 'suspended') {
         await state.audioCtx.resume();
     }
@@ -341,7 +347,7 @@ async function togglePlayPattern(pattern, playBtn) {
 
 function playPattern(pattern) {
     if (!pattern.events) return;
-    
+
     state.playingPatterns.add(pattern.id);
     schedulePattern(pattern);
 }
@@ -410,23 +416,23 @@ function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
 function playSample(drumType, startTime, velocity = 0.7) {
     const ctx = state.audioCtx;
     const buffer = state.audioBuffers[drumType];
-    
+
     if (!buffer) return;
 
     const source = ctx.createBufferSource();
     const gainNode = ctx.createGain();
-    
+
     source.buffer = buffer;
-    
+
     let volumeAdjustment = 0;
     if (state.sampleMap && state.sampleMap[drumType]) {
         volumeAdjustment = state.sampleMap[drumType].velocityTrim || 0;
     }
-    
+
     const baseGain = velocity;
     const trimMultiplier = Math.pow(10, volumeAdjustment / 20);
     gainNode.gain.value = baseGain * trimMultiplier;
-    
+
     source.connect(gainNode);
     gainNode.connect(ctx.destination);
     source.start(startTime);
@@ -497,4 +503,23 @@ function synthHiHat(ctx, time, velocity, open) {
     filter.connect(gain);
     gain.connect(ctx.destination);
     noise.start(time);
+}
+
+// UI Helper functions
+function showLoading(message = 'Loading...') {
+    if (dom.loadingIndicator) {
+        const messageEl = dom.loadingIndicator.querySelector('p');
+        if (messageEl) {
+            messageEl.textContent = message;
+        }
+        dom.loadingIndicator.classList.remove('hidden');
+        dom.patternsGrid.style.display = 'none';
+    }
+}
+
+function hideLoading() {
+    if (dom.loadingIndicator) {
+        dom.loadingIndicator.classList.add('hidden');
+        dom.patternsGrid.style.display = 'grid';
+    }
 }
