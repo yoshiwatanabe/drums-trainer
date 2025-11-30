@@ -17,7 +17,7 @@
         "description": "Tight snare sample"
     },
     "hihat_closed": {
-        "file": "audio/Ensoniq-SQ-Closed-Hi-Hat.wav",
+        "file": "audio/Ensoniq-SQ-1-Closed-Hi-Hat.wav",
         "aliases": [
             "hhc"
         ],
@@ -25,7 +25,7 @@
         "description": "Closed hi-hat"
     },
     "hihat_open": {
-        "file": "audio/Ensoniq-SQ-Open-Hi-Hat.wav",
+        "file": "audio/Ensoniq-SQ-1-Open-Hi-Hat.wav",
         "aliases": [
             "hho"
         ],
