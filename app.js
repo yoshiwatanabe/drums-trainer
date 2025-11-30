@@ -396,11 +396,12 @@ function renderNotation(pattern, container) {
                         duration: note.duration,
                         clef: clef
                     });
-                    
-                    // Get events at this time position for styling
-                    const timePosition = noteIndex * 0.5; // 8th notes
+
+                    // Determine time step based on note duration
+                    const timeStep = note.duration.startsWith('16') ? 0.25 : 0.5;
+                    const timePosition = noteIndex * timeStep;
                     const eventsAtTime = pattern.events.filter(e => Math.abs(e.time - timePosition) < 0.01);
-                    
+
                     // Color code notes by instrument
                     note.keys.forEach((key, keyIndex) => {
                         if (key === 'f/4') { // kick
@@ -408,7 +409,7 @@ function renderNotation(pattern, container) {
                         } else if (key === 'c/5') { // snare
                             const snareEvent = eventsAtTime.find(e => e.note === 'snare');
                             if (snareEvent && snareEvent.velocity < 70) {
-                                // Ghost note - lighter color and add parentheses
+                                // Ghost note - lighter color
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#95a5a6', strokeStyle: '#7f8c8d' });
                             } else {
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#3498db', strokeStyle: '#2980b9' });
@@ -417,15 +418,15 @@ function renderNotation(pattern, container) {
                             staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
                         }
                     });
-                    
+
                     // Add accent for high velocity notes
-                    const highVelocityEvent = eventsAtTime.find(e => 
+                    const highVelocityEvent = eventsAtTime.find(e =>
                         (e.note === 'kick' || e.note === 'snare') && e.velocity >= 100
                     );
                     if (highVelocityEvent) {
                         staveNote.addModifier(new VF.Articulation('a>').setPosition(3), 0);
                     }
-                    
+
                     noteIndex++;
                     return staveNote;
                 }
