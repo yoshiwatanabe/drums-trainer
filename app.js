@@ -399,7 +399,7 @@ function schedulePattern(pattern) {
 
 function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
     const ctx = state.audioCtx;
-    
+
     // Normalize instrument name (handle aliases)
     const drumType = normalizeDrumName(instrument);
 
@@ -448,7 +448,7 @@ function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
 function playSample(drumType, startTime, velocity = 0.7) {
     const ctx = state.audioCtx;
     const buffer = state.audioBuffers[drumType];
-    
+
     if (!buffer) {
         console.warn(`No buffer for ${drumType}`);
         return;
@@ -456,20 +456,20 @@ function playSample(drumType, startTime, velocity = 0.7) {
 
     const source = ctx.createBufferSource();
     const gainNode = ctx.createGain();
-    
+
     source.buffer = buffer;
-    
+
     // Apply velocity trim from sample-map if available
     let volumeAdjustment = 0;
     if (state.sampleMap && state.sampleMap[drumType]) {
         volumeAdjustment = state.sampleMap[drumType].velocityTrim || 0;
     }
-    
+
     // Convert velocity (0-1) and apply trim (in dB)
     const baseGain = velocity;
     const trimMultiplier = Math.pow(10, volumeAdjustment / 20); // dB to linear
     gainNode.gain.value = baseGain * trimMultiplier;
-    
+
     source.connect(gainNode);
     gainNode.connect(ctx.destination);
     source.start(startTime);
