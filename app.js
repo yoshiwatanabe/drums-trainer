@@ -294,6 +294,18 @@ function createPatternCard(pattern) {
             <span class="notation-legend-color" style="background: #ff9500;"></span>
             <span>HH オープン</span>
         </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #9b59b6;"></span>
+            <span>ハイタム</span>
+        </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #1abc9c;"></span>
+            <span>ミッドタム</span>
+        </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #e67e22;"></span>
+            <span>フロアタム</span>
+        </div>
     `;
     notationDiv.appendChild(legend);
 
@@ -444,6 +456,12 @@ function renderNotation(pattern, container) {
                                 // Default
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
                             }
+                        } else if (key === 'd/5') { // tom high
+                            staveNote.setKeyStyle(keyIndex, { fillStyle: '#9b59b6', strokeStyle: '#8e44ad' });
+                        } else if (key === 'b/4') { // tom mid
+                            staveNote.setKeyStyle(keyIndex, { fillStyle: '#1abc9c', strokeStyle: '#16a085' });
+                        } else if (key === 'a/4') { // tom floor
+                            staveNote.setKeyStyle(keyIndex, { fillStyle: '#e67e22', strokeStyle: '#d35400' });
                         }
                     });
 
