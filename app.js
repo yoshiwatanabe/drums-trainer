@@ -275,9 +275,11 @@ function schedulePattern(pattern) {
     const bpm = state.bpm;
     const secondsPerBeat = 60 / bpm;
     const startTime = state.audioCtx.currentTime + 0.1;
+    console.log('Scheduling', pattern.events.length, 'events at BPM', bpm);
     pattern.events.forEach((evt) => {
         const velocity = evt.velocity ? evt.velocity / 127 : 0.7;
         const when = startTime + evt.time * secondsPerBeat;
+        console.log('Event:', evt.note, 'at', when, 'velocity', velocity);
         synthesizeDrumSound(evt.note, when, velocity);
     });
     if (state.isLooping) {
@@ -293,6 +295,7 @@ function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
 
     // Normalize instrument name (handle aliases)
     const drumType = normalizeDrumName(instrument);
+    console.log('Synthesizing:', instrument, '->', drumType, 'at', startTime);
 
     switch (drumType) {
         case 'kick':
