@@ -275,11 +275,12 @@ function schedulePattern(pattern) {
     const bpm = state.bpm;
     const secondsPerBeat = 60 / bpm;
     const startTime = state.audioCtx.currentTime + 0.1;
+    console.log('Current time:', state.audioCtx.currentTime, 'Start time:', startTime);
     console.log('Scheduling', pattern.events.length, 'events at BPM', bpm);
     pattern.events.forEach((evt) => {
         const velocity = evt.velocity ? evt.velocity / 127 : 0.7;
         const when = startTime + evt.time * secondsPerBeat;
-        console.log('Event:', evt.note, 'at', when, 'velocity', velocity);
+        console.log('Event:', evt.note, 'at time', evt.time, 'beats = absolute', when, 's, velocity', velocity);
         synthesizeDrumSound(evt.note, when, velocity);
     });
     if (state.isLooping) {
