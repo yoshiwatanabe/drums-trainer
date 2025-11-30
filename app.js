@@ -137,7 +137,7 @@ function renderGroupList() {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'group-header';
         headerDiv.innerHTML = `
-            <span class="group-title">${group.title}</span>
+            <span class="group-title">${group.name}</span>
             <span class="group-count">${group.patterns.length} patterns</span>
         `;
 
@@ -397,10 +397,9 @@ function renderNotation(pattern, container) {
                         clef: clef
                     });
 
-                    // Determine time step based on note duration
-                    const timeStep = note.duration.startsWith('16') ? 0.25 : 0.5;
-                    const timePosition = noteIndex * timeStep;
-                    const eventsAtTime = pattern.events.filter(e => Math.abs(e.time - timePosition) < 0.01);
+                    // Get events at this time position (8th notes = 0.5 intervals)
+                    const timePosition = noteIndex * 0.5;
+                    const eventsAtTime = pattern.events.filter(e => Math.abs(e.time - timePosition) < 0.26);
 
                     // Color code notes by instrument
                     note.keys.forEach((key, keyIndex) => {
