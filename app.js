@@ -288,11 +288,11 @@ function createPatternCard(pattern) {
         </div>
         <div class="notation-legend-item">
             <span class="notation-legend-color" style="background: #f39c12;"></span>
-            <span>ハイハット</span>
+            <span>HH クローズ</span>
         </div>
         <div class="notation-legend-item">
             <span class="notation-legend-color" style="background: #ff9500;"></span>
-            <span>オープン (o)</span>
+            <span>HH オープン</span>
         </div>
     `;
     notationDiv.appendChild(legend);
