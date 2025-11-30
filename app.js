@@ -346,7 +346,7 @@ function analyzePattern(pattern) {
         } else {
             features.push(`🔔 ライドシンバル（${ride.length}回）`);
         }
-        
+
         // Check if cymbals are always with kicks
         const kickTimes = new Set(kicks.map(k => k.time));
         const cymbalTimes = [...crash, ...ride].map(c => c.time);
@@ -697,6 +697,7 @@ function normalizeDrumName(name) {
         'hho': 'hihat_open',
         'rc': 'ride',
         'rb': 'ride_bell',
+        'crash': 'crash_a',  // Default crash to crash_a
         'cr1': 'crash_a',
         'cr2': 'crash_b',
         't1': 'tom_high',
