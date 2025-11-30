@@ -71,7 +71,7 @@ const EMBEDDED_PATTERNS = [
         "title": "Syncopated HH Open Variation",
         "tags": ["8beat", "hihat-open", "permutation"],
         "time_signature": "4/4",
-        "bpm_default": 100,
+        "bpm_default": 70,
         "loop_length_beats": 4,
         "events": [
             { "time": 0, "note": "kick", "velocity": 110 },
@@ -116,7 +116,7 @@ const EMBEDDED_PATTERNS = [
         "title": "Basic Rock Beat",
         "tags": ["8beat", "rock", "basic"],
         "time_signature": "4/4",
-        "bpm_default": 120,
+        "bpm_default": 70,
         "loop_length_beats": 4,
         "events": [
             { "time": 0, "note": "kick", "velocity": 110 },
@@ -162,7 +162,7 @@ const EMBEDDED_PATTERNS = [
         "title": "Ride Cymbal Groove",
         "tags": ["ride", "jazz", "permutation"],
         "time_signature": "4/4",
-        "bpm_default": 140,
+        "bpm_default": 70,
         "loop_length_beats": 4,
         "events": [
             { "time": 0, "note": "kick", "velocity": 100 },
@@ -443,19 +443,19 @@ function normalizeDrumName(name) {
 function synthKick(ctx, time, velocity) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.type = 'sine';
     osc.frequency.setValueAtTime(150, time);
     osc.frequency.exponentialRampToValueAtTime(50, time + 0.05);
-    
+
     gain.gain.setValueAtTime(1.0, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
-    
+
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.3);
-}function synthSnare(ctx, time, velocity) {
+} function synthSnare(ctx, time, velocity) {
     // Tone component
     const osc = ctx.createOscillator();
     const oscGain = ctx.createGain();
@@ -464,7 +464,7 @@ function synthKick(ctx, time, velocity) {
     oscGain.gain.setValueAtTime(0.3, time);
     oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
     osc.connect(oscGain).connect(ctx.destination);
-    
+
     // Noise component
     const bufferSize = ctx.sampleRate * 0.15;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -480,12 +480,12 @@ function synthKick(ctx, time, velocity) {
     const noiseGain = ctx.createGain();
     noiseGain.gain.setValueAtTime(0.6, time);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
-    
+
     noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.1);
     noise.start(time);
-}function synthHiHat(ctx, time, velocity, open = false) {
+} function synthHiHat(ctx, time, velocity, open = false) {
     const bufferSize = ctx.sampleRate * (open ? 0.25 : 0.06);
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -499,14 +499,14 @@ function synthKick(ctx, time, velocity) {
     filter.frequency.setValueAtTime(7000, time);
     filter.Q.setValueAtTime(1, time);
     const gain = ctx.createGain();
-    
+
     const duration = open ? 0.25 : 0.06;
     gain.gain.setValueAtTime(0.4, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
-    
+
     noise.connect(filter).connect(gain).connect(ctx.destination);
     noise.start(time);
-}function synthRide(ctx, time, velocity) {
+} function synthRide(ctx, time, velocity) {
     const bufferSize = ctx.sampleRate * 0.5;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
