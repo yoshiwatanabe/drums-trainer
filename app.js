@@ -429,13 +429,14 @@ function renderNotation(pattern, container) {
                             const hihatClosed = eventsAtTime.find(e => e.note === 'hihat_closed');
 
                             if (hihatOpen) {
-                                // Open hihat - brighter orange with "o" annotation
+                                // Open hihat - brighter orange, use + articulation as "open" marker
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#ff9500', strokeStyle: '#e67e00' });
-                                // Add "o" marker for open hihat
-                                const annotation = new VF.Annotation('o');
-                                annotation.setFont('Arial', 10, 'bold');
-                                annotation.setVerticalJustification(VF.Annotation.VerticalJustify.TOP);
-                                staveNote.addModifier(annotation, keyIndex);
+                                try {
+                                    // Use "+" articulation above the note to indicate open hihat
+                                    staveNote.addModifier(new VF.Articulation('a+').setPosition(4), keyIndex);
+                                } catch (e) {
+                                    console.log('Could not add articulation:', e);
+                                }
                             } else if (hihatClosed) {
                                 // Closed hihat - standard orange
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
