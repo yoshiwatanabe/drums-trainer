@@ -290,6 +290,10 @@ function createPatternCard(pattern) {
             <span class="notation-legend-color" style="background: #f39c12;"></span>
             <span>ハイハット</span>
         </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #ff9500;"></span>
+            <span>オープン (o)</span>
+        </div>
     `;
     notationDiv.appendChild(legend);
 
@@ -312,6 +316,8 @@ function analyzePattern(pattern) {
     const kicks = pattern.events.filter(e => e.note === 'kick');
     const snares = pattern.events.filter(e => e.note === 'snare');
     const ghostNotes = pattern.events.filter(e => e.velocity < 70);
+    const hihatOpen = pattern.events.filter(e => e.note === 'hihat_open');
+    const hihatClosed = pattern.events.filter(e => e.note === 'hihat_closed');
 
     // Check for syncopation (notes on offbeats)
     const offbeatNotes = pattern.events.filter(e => {
@@ -350,6 +356,11 @@ function analyzePattern(pattern) {
         features.push(`✓ バックビート（2・4拍目スネア）`);
     } else if (backbeatSnares.length > 0) {
         features.push(`⚠ 変則バックビート`);
+    }
+
+    // Hihat variations
+    if (hihatOpen.length > 0) {
+        features.push(`🔓 オープンハイハット ${hihatOpen.length}回`);
     }
 
     return features.length > 0 ? features.join(' · ') : null;
@@ -414,9 +425,27 @@ function renderNotation(pattern, container) {
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#3498db', strokeStyle: '#2980b9' });
                             }
                         } else if (key === 'g/5') { // hihat
-                            staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
+                            const hihatOpen = eventsAtTime.find(e => e.note === 'hihat_open');
+                            const hihatClosed = eventsAtTime.find(e => e.note === 'hihat_closed');
+                            
+                            if (hihatOpen) {
+                                // Open hihat - brighter orange
+                                staveNote.setKeyStyle(keyIndex, { fillStyle: '#ff9500', strokeStyle: '#e67e00' });
+                            } else if (hihatClosed) {
+                                // Closed hihat - standard orange
+                                staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
+                            } else {
+                                // Default
+                                staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
+                            }
                         }
                     });
+                    
+                    // Add "o" for open hihat
+                    const hasOpenHihat = eventsAtTime.find(e => e.note === 'hihat_open');
+                    if (hasOpenHihat) {
+                        staveNote.addModifier(new VF.Annotation('o').setPosition(VF.Annotation.Position.ABOVE), 0);
+                    }
 
                     // Add accent for high velocity notes
                     const highVelocityEvent = eventsAtTime.find(e =>
