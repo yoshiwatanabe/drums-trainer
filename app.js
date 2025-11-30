@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', initApp);
 async function initApp() {
     cacheDom();
     bindUi();
+    setBpm(70); // Initialize BPM UI to default
     await loadPatterns();
     renderPatternList();
     if (state.filtered.length) {
