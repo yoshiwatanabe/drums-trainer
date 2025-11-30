@@ -517,7 +517,7 @@ function schedulePattern(pattern) {
     pattern.events.forEach((evt) => {
         const velocity = evt.velocity ? evt.velocity / 127 : 0.7;
         const when = startTime + evt.time * secondsPerBeat;
-        
+
         // Stop any playing open hihat when closed hihat is hit
         if (evt.note === 'hihat_closed') {
             openHihatSources.forEach(src => {
@@ -526,7 +526,7 @@ function schedulePattern(pattern) {
                 }
             });
         }
-        
+
         const hihatSource = synthesizeDrumSound(evt.note, when, velocity);
         if (evt.note === 'hihat_open' && hihatSource) {
             openHihatSources.push(hihatSource);
@@ -599,7 +599,7 @@ function playSample(drumType, startTime, velocity = 0.7) {
     source.connect(gainNode);
     gainNode.connect(ctx.destination);
     source.start(startTime);
-    
+
     // Return source and planned stop time for open hihat tracking
     const stopTime = drumType === 'hihat_open' ? startTime + buffer.duration : startTime + 0.1;
     return { source, stopTime };
