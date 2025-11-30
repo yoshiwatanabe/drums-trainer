@@ -164,6 +164,17 @@ main {
   margin: 0;
 }
 
+.pattern-description {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: #2a2a2a;
+  border-left: 3px solid #28a745;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
 .pattern-controls {
   display: flex;
   gap: 0.5rem;
