@@ -274,7 +274,7 @@ function schedulePattern(pattern) {
     if (!pattern.events) return;
     const bpm = state.bpm;
     const secondsPerBeat = 60 / bpm;
-    const startTime = state.audioCtx.currentTime + 0.1;
+    const startTime = state.audioCtx.currentTime + 0.2;
     console.log('Current time:', state.audioCtx.currentTime, 'Start time:', startTime);
     console.log('Scheduling', pattern.events.length, 'events at BPM', bpm);
     pattern.events.forEach((evt) => {
@@ -360,16 +360,14 @@ function synthKick(ctx, time, velocity) {
     osc.frequency.setValueAtTime(150, time);
     osc.frequency.exponentialRampToValueAtTime(50, time + 0.05);
     
-    gain.gain.setValueAtTime(velocity * 0.8, time);
+    gain.gain.setValueAtTime(1.0, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
     
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.3);
-}
-
-function synthSnare(ctx, time, velocity) {
+}function synthSnare(ctx, time, velocity) {
     console.log('synthSnare called', time, velocity);
     // Simplified: just use oscillator for now
     const osc = ctx.createOscillator();
@@ -378,16 +376,14 @@ function synthSnare(ctx, time, velocity) {
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(200, time);
     
-    gain.gain.setValueAtTime(velocity * 0.5, time);
+    gain.gain.setValueAtTime(0.8, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
     
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.1);
-}
-
-function synthHiHat(ctx, time, velocity, open = false) {
+}function synthHiHat(ctx, time, velocity, open = false) {
     console.log('synthHiHat called', time, velocity, open);
     // Simplified: use square wave as placeholder
     const osc = ctx.createOscillator();
@@ -397,16 +393,14 @@ function synthHiHat(ctx, time, velocity, open = false) {
     osc.frequency.setValueAtTime(800, time);
     
     const duration = open ? 0.2 : 0.05;
-    gain.gain.setValueAtTime(velocity * 0.3, time);
+    gain.gain.setValueAtTime(0.6, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
     
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(time);
     osc.stop(time + duration);
-}
-
-function synthRide(ctx, time, velocity) {
+}function synthRide(ctx, time, velocity) {
     const bufferSize = ctx.sampleRate * 0.5;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
