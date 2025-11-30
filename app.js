@@ -5,7 +5,7 @@ const state = {
     patterns: [],
     filtered: [],
     currentPattern: null,
-    bpm: 60,
+    bpm: 70,
     isLooping: true,
     isPlaying: false,
     scheduler: null
