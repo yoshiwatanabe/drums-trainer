@@ -330,6 +330,45 @@ function analyzePattern(pattern) {
     const ghostNotes = pattern.events.filter(e => e.velocity < 70);
     const hihatOpen = pattern.events.filter(e => e.note === 'hihat_open');
     const hihatClosed = pattern.events.filter(e => e.note === 'hihat_closed');
+    const tomHigh = pattern.events.filter(e => e.note === 'tom_high');
+    const tomMid = pattern.events.filter(e => e.note === 'tom_mid');
+    const tomFloor = pattern.events.filter(e => e.note === 'tom_floor');
+
+    // Check for roll patterns (snare + toms in sequence)
+    const allToms = [...tomHigh, ...tomMid, ...tomFloor];
+    const tomAndSnare = [...snares, ...allToms].sort((a, b) => a.time - b.time);
+    
+    // Detect roll: 3+ consecutive tom/snare hits after beat 2
+    const rollEvents = tomAndSnare.filter(e => e.time >= 1.5);
+    if (rollEvents.length >= 3) {
+        const tomTypes = new Set([
+            tomHigh.length > 0 ? 'high' : null,
+            tomMid.length > 0 ? 'mid' : null,
+            tomFloor.length > 0 ? 'floor' : null
+        ].filter(Boolean));
+        
+        if (tomTypes.size === 3) {
+            features.push(`🎼 3タムロール（スネア→ハイ→ミッド→フロア）`);
+        } else if (tomTypes.size === 2) {
+            features.push(`🎼 2タムロール（${rollEvents.length}ヒット）`);
+        } else if (allToms.length > 0) {
+            features.push(`🎼 シングルタムロール（${rollEvents.length}ヒット）`);
+        } else {
+            features.push(`🎼 スネアロール（${rollEvents.length}ヒット）`);
+        }
+    } else if (allToms.length > 0) {
+        // Tom fills (not a roll, just tom hits)
+        const tomCount = tomHigh.length + tomMid.length + tomFloor.length;
+        if (tomHigh.length > 0 && tomMid.length > 0 && tomFloor.length > 0) {
+            features.push(`🥁 3タムフィル（${tomCount}ヒット）`);
+        } else if ((tomHigh.length > 0 && tomMid.length > 0) || 
+                   (tomMid.length > 0 && tomFloor.length > 0) ||
+                   (tomHigh.length > 0 && tomFloor.length > 0)) {
+            features.push(`🥁 2タムフィル（${tomCount}ヒット）`);
+        } else {
+            features.push(`🥁 シングルタムフィル（${tomCount}ヒット）`);
+        }
+    }
 
     // Check for syncopation (notes on offbeats)
     const offbeatNotes = pattern.events.filter(e => {
@@ -339,40 +378,44 @@ function analyzePattern(pattern) {
         return mod > 0.1 && mod < 0.9 && (e.note === 'kick' || e.note === 'snare');
     });
 
-    // Kick density
-    if (kicks.length >= 5) {
-        features.push(`🥁 ${kicks.length}回のキック（高密度）`);
-    } else if (kicks.length >= 3) {
-        features.push(`🥁 ${kicks.length}回のキック`);
-    } else {
-        features.push(`🥁 ${kicks.length}回のキック（スパース）`);
+    // Only show kick density if no toms (to avoid cluttering tom patterns)
+    if (allToms.length === 0) {
+        if (kicks.length >= 5) {
+            features.push(`🥁 ${kicks.length}回のキック（高密度）`);
+        } else if (kicks.length >= 3) {
+            features.push(`🥁 ${kicks.length}回のキック`);
+        } else if (kicks.length > 0) {
+            features.push(`🥁 ${kicks.length}回のキック（スパース）`);
+        }
     }
 
     // Ghost notes
     if (ghostNotes.length > 0) {
-        features.push(`👻 ゴーストノート ${ghostNotes.length}個（弱い音、ベロシティ<70）`);
+        features.push(`👻 ゴーストノート ${ghostNotes.length}個`);
     }
 
     // Syncopation
     if (offbeatNotes.length >= 2) {
-        features.push(`🎵 シンコペーション（裏拍強調、${offbeatNotes.length}箇所）`);
+        features.push(`🎵 シンコペーション（${offbeatNotes.length}箇所）`);
     }
 
-    // Backbeat check
-    const backbeatSnares = snares.filter(s => {
-        const beat = Math.round(s.time);
-        return beat === 1 || beat === 3; // 2nd and 4th beats
-    });
+    // Backbeat check (only if no roll detected)
+    if (rollEvents.length < 3) {
+        const backbeatSnares = snares.filter(s => {
+            const beat = Math.round(s.time);
+            return beat === 1 || beat === 3; // 2nd and 4th beats
+        });
 
-    if (backbeatSnares.length === 2) {
-        features.push(`✓ バックビート（2・4拍目スネア）`);
-    } else if (backbeatSnares.length > 0) {
-        features.push(`⚠ 変則バックビート`);
+        if (backbeatSnares.length === 2) {
+            features.push(`✓ バックビート（2・4拍目）`);
+        } else if (backbeatSnares.length > 0) {
+            features.push(`⚠ 変則バックビート`);
+        }
     }
 
     // Hihat variations
     if (hihatOpen.length > 0) {
-        features.push(`🔓 オープンハイハット ${hihatOpen.length}回`);
+        features.push(`🔓 オープンHH ${hihatOpen.length}回`);
     }
 
     return features.length > 0 ? features.join(' · ') : null;
