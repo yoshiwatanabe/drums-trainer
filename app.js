@@ -270,6 +270,29 @@ function createPatternCard(pattern) {
     notationDiv.className = 'pattern-notation';
     notationDiv.id = `notation-${pattern.id}`;
 
+    // Add legend
+    const legend = document.createElement('div');
+    legend.className = 'notation-legend';
+    legend.innerHTML = `
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #e74c3c;"></span>
+            <span>キック</span>
+        </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #3498db;"></span>
+            <span>スネア</span>
+        </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #95a5a6;"></span>
+            <span>ゴースト</span>
+        </div>
+        <div class="notation-legend-item">
+            <span class="notation-legend-color" style="background: #f39c12;"></span>
+            <span>ハイハット</span>
+        </div>
+    `;
+    notationDiv.appendChild(legend);
+
     card.appendChild(notationDiv);
 
     // Render notation
@@ -357,9 +380,11 @@ function renderNotation(pattern, container) {
 
         const voices = staveDef.voices.map((voiceDef) => {
             const clef = voiceDef.clef || 'treble';
+            let noteIndex = 0;
 
             const notes = voiceDef.notes.map((note) => {
                 if (note.duration && note.duration.includes('r')) {
+                    noteIndex++;
                     return new VF.StaveNote({
                         keys: note.keys || ['b/4'],
                         duration: note.duration,
@@ -371,6 +396,37 @@ function renderNotation(pattern, container) {
                         duration: note.duration,
                         clef: clef
                     });
+                    
+                    // Get events at this time position for styling
+                    const timePosition = noteIndex * 0.5; // 8th notes
+                    const eventsAtTime = pattern.events.filter(e => Math.abs(e.time - timePosition) < 0.01);
+                    
+                    // Color code notes by instrument
+                    note.keys.forEach((key, keyIndex) => {
+                        if (key === 'f/4') { // kick
+                            staveNote.setKeyStyle(keyIndex, { fillStyle: '#e74c3c', strokeStyle: '#c0392b' });
+                        } else if (key === 'c/5') { // snare
+                            const snareEvent = eventsAtTime.find(e => e.note === 'snare');
+                            if (snareEvent && snareEvent.velocity < 70) {
+                                // Ghost note - lighter color and add parentheses
+                                staveNote.setKeyStyle(keyIndex, { fillStyle: '#95a5a6', strokeStyle: '#7f8c8d' });
+                            } else {
+                                staveNote.setKeyStyle(keyIndex, { fillStyle: '#3498db', strokeStyle: '#2980b9' });
+                            }
+                        } else if (key === 'g/5') { // hihat
+                            staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
+                        }
+                    });
+                    
+                    // Add accent for high velocity notes
+                    const highVelocityEvent = eventsAtTime.find(e => 
+                        (e.note === 'kick' || e.note === 'snare') && e.velocity >= 100
+                    );
+                    if (highVelocityEvent) {
+                        staveNote.addModifier(new VF.Articulation('a>').setPosition(3), 0);
+                    }
+                    
+                    noteIndex++;
                     return staveNote;
                 }
             });
