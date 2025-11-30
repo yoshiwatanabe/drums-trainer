@@ -180,6 +180,14 @@ function renderNotation(pattern) {
         dom.notation.textContent = 'Notation data missing';
         return;
     }
+    
+    // Wait for VexFlow to load
+    if (typeof Vex === 'undefined') {
+        dom.notation.textContent = 'Loading notation library...';
+        setTimeout(() => renderNotation(pattern), 100);
+        return;
+    }
+    
     const VF = Vex.Flow;
     const staveData = pattern.notation.vexflow.staves || [];
     const width = pattern.notation.vexflow.width || 640;
