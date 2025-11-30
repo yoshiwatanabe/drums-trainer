@@ -114,7 +114,7 @@ async function loadIndex() {
         const indexData = await indexResponse.json();
 
         // Check version
-        if (indexData.version === "2.0" && indexData.groups) {
+        if (indexData.version && indexData.version.startsWith("2.") && indexData.groups) {
             state.groups = indexData.groups;
             console.log(`Loaded ${state.groups.length} groups`);
         } else {
