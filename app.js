@@ -334,6 +334,27 @@ function analyzePattern(pattern) {
     const tomHigh = pattern.events.filter(e => e.note === 'tom_high');
     const tomMid = pattern.events.filter(e => e.note === 'tom_mid');
     const tomFloor = pattern.events.filter(e => e.note === 'tom_floor');
+    const crash = pattern.events.filter(e => e.note === 'crash');
+    const ride = pattern.events.filter(e => e.note === 'ride');
+
+    // Check for cymbal patterns
+    if (crash.length > 0 || ride.length > 0) {
+        if (crash.length > 0 && ride.length > 0) {
+            features.push(`🔔 クラッシュ&ライド（${crash.length + ride.length}回）`);
+        } else if (crash.length > 0) {
+            features.push(`🔔 クラッシュシンバル（${crash.length}回）`);
+        } else {
+            features.push(`🔔 ライドシンバル（${ride.length}回）`);
+        }
+        
+        // Check if cymbals are always with kicks
+        const kickTimes = new Set(kicks.map(k => k.time));
+        const cymbalTimes = [...crash, ...ride].map(c => c.time);
+        const allWithKick = cymbalTimes.every(t => kickTimes.has(t));
+        if (allWithKick) {
+            features.push(`✓ シンバル=キック同期`);
+        }
+    }
 
     // Check for roll patterns (snare + toms in sequence)
     const allToms = [...tomHigh, ...tomMid, ...tomFloor];
