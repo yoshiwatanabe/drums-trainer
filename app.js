@@ -5,7 +5,7 @@ const state = {
     patterns: [],
     filtered: [],
     currentPattern: null,
-    bpm: 120,
+    bpm: 60,
     isLooping: true,
     isPlaying: false,
     scheduler: null
@@ -455,36 +455,56 @@ function synthKick(ctx, time, velocity) {
     osc.start(time);
     osc.stop(time + 0.3);
 }function synthSnare(ctx, time, velocity) {
-    // Simplified: just use oscillator for now
+    // Tone component
     const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
+    const oscGain = ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(200, time);
+    oscGain.gain.setValueAtTime(0.3, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+    osc.connect(oscGain).connect(ctx.destination);
     
-    gain.gain.setValueAtTime(0.8, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+    // Noise component
+    const bufferSize = ctx.sampleRate * 0.15;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.setValueAtTime(1500, time);
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.6, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
     
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.1);
+    noise.start(time);
 }function synthHiHat(ctx, time, velocity, open = false) {
-    // Simplified: use square wave as placeholder
-    const osc = ctx.createOscillator();
+    const bufferSize = ctx.sampleRate * (open ? 0.25 : 0.06);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(7000, time);
+    filter.Q.setValueAtTime(1, time);
     const gain = ctx.createGain();
     
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(800, time);
-    
-    const duration = open ? 0.2 : 0.05;
-    gain.gain.setValueAtTime(0.6, time);
+    const duration = open ? 0.25 : 0.06;
+    gain.gain.setValueAtTime(0.4, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
     
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(time);
-    osc.stop(time + duration);
+    noise.connect(filter).connect(gain).connect(ctx.destination);
+    noise.start(time);
 }function synthRide(ctx, time, velocity) {
     const bufferSize = ctx.sampleRate * 0.5;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
