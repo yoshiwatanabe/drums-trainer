@@ -5,7 +5,7 @@
             "bass",
             "bd"
         ],
-        "velocityTrim": 0,
+        "velocityTrim": 3,
         "description": "Punchy bass drum hit"
     },
     "snare": {
