@@ -63,34 +63,59 @@ function bindUi() {
     });
 }
 
+// Embedded pattern data (no fetch required)
+const EMBEDDED_PATTERNS = [
+    {
+        "id": "patt_001",
+        "title": "Syncopated HH Open Variation",
+        "tags": ["8beat", "hihat-open", "permutation"],
+        "time_signature": "4/4",
+        "bpm_default": 100,
+        "loop_length_beats": 4,
+        "events": [
+            { "time": 0, "note": "kick", "velocity": 110 },
+            { "time": 0, "note": "hihat_closed", "velocity": 80 },
+            { "time": 0.25, "note": "snare", "velocity": 100 },
+            { "time": 0.5, "note": "hihat_open", "velocity": 90 },
+            { "time": 0.75, "note": "snare", "velocity": 90 },
+            { "time": 1, "note": "kick", "velocity": 110 },
+            { "time": 1.5, "note": "hihat_closed", "velocity": 80 },
+            { "time": 2, "note": "kick", "velocity": 110 },
+            { "time": 2.5, "note": "snare", "velocity": 100 },
+            { "time": 3, "note": "kick", "velocity": 110 },
+            { "time": 3.5, "note": "snare", "velocity": 100 }
+        ],
+        "notation": {
+            "vexflow": {
+                "staves": [
+                    {
+                        "timeSignature": "4/4",
+                        "voices": [
+                            {
+                                "clef": "percussion",
+                                "notes": [
+                                    { "keys": ["f/3"], "duration": "4", "articulation": "accent" },
+                                    { "keys": ["c/4"], "duration": "8" }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+];
+
 async function loadPatterns() {
     try {
-        const manifestRes = await fetch('patterns/index.json');
-        if (!manifestRes.ok) {
-            console.error('patterns/index.json missing');
-            return;
-        }
-        const manifest = await manifestRes.json();
         const loaded = [];
-        for (const entry of manifest) {
-            const file = entry.file || entry.path;
-            if (!file) continue;
-            try {
-                const res = await fetch(file);
-                if (!res.ok) {
-                    console.warn(`Failed to fetch pattern ${file}`);
-                    continue;
-                }
-                const pattern = await res.json();
-                const errors = validatePattern(pattern);
-                if (errors.length) {
-                    console.warn(`Skipping pattern ${pattern.id || file}`, errors);
-                    continue;
-                }
-                loaded.push(pattern);
-            } catch (err) {
-                console.warn('Pattern load error', file, err);
+        for (const pattern of EMBEDDED_PATTERNS) {
+            const errors = validatePattern(pattern);
+            if (errors.length) {
+                console.warn(`Skipping pattern ${pattern.id}`, errors);
+                continue;
             }
+            loaded.push(pattern);
         }
         state.patterns = loaded;
         state.filtered = loaded;
