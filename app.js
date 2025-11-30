@@ -352,71 +352,58 @@ function normalizeDrumName(name) {
 }
 
 function synthKick(ctx, time, velocity) {
+    console.log('synthKick called', time, velocity);
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-
+    
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(150, time);
-    osc.frequency.exponentialRampToValueAtTime(40, time + 0.05);
-
-    gain.gain.setValueAtTime(velocity, time);
-    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
-
-    osc.connect(gain).connect(ctx.destination);
+    osc.frequency.exponentialRampToValueAtTime(50, time + 0.05);
+    
+    gain.gain.setValueAtTime(velocity * 0.8, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
     osc.start(time);
-    osc.stop(time + 0.4);
+    osc.stop(time + 0.3);
 }
 
 function synthSnare(ctx, time, velocity) {
-    // Tone component
+    console.log('synthSnare called', time, velocity);
+    // Simplified: just use oscillator for now
     const osc = ctx.createOscillator();
-    const oscGain = ctx.createGain();
-    osc.frequency.setValueAtTime(180, time);
-    oscGain.gain.setValueAtTime(velocity * 0.3, time);
-    oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
-    osc.connect(oscGain).connect(ctx.destination);
-
-    // Noise component
-    const bufferSize = ctx.sampleRate * 0.2;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const noiseGain = ctx.createGain();
-    const noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = 'highpass';
-    noiseFilter.frequency.setValueAtTime(1000, time);
-
-    noiseGain.gain.setValueAtTime(velocity * 0.5, time);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
-
-    noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+    const gain = ctx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(200, time);
+    
+    gain.gain.setValueAtTime(velocity * 0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
     osc.start(time);
-    osc.stop(time + 0.15);
-    noise.start(time);
+    osc.stop(time + 0.1);
 }
 
 function synthHiHat(ctx, time, velocity, open = false) {
-    const bufferSize = ctx.sampleRate * (open ? 0.3 : 0.08);
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.setValueAtTime(7000, time);
+    console.log('synthHiHat called', time, velocity, open);
+    // Simplified: use square wave as placeholder
+    const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-
+    
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800, time);
+    
+    const duration = open ? 0.2 : 0.05;
     gain.gain.setValueAtTime(velocity * 0.3, time);
-    gain.gain.exponentialRampToValueAtTime(0.01, time + (open ? 0.3 : 0.08));
-
-    noise.connect(filter).connect(gain).connect(ctx.destination);
-    noise.start(time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(time);
+    osc.stop(time + duration);
 }
 
 function synthRide(ctx, time, velocity) {
