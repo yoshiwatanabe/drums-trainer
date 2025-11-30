@@ -8,7 +8,9 @@ const state = {
     bpm: 70,
     isLooping: true,
     isPlaying: false,
-    scheduler: null
+    scheduler: null,
+    sampleMap: null,
+    audioBuffers: {}
 };
 
 const dom = {};
@@ -19,6 +21,7 @@ async function initApp() {
     cacheDom();
     bindUi();
     setBpm(70); // Initialize BPM UI to default
+    await loadAudioSamples();
     await loadPatterns();
     renderPatternList();
     if (state.filtered.length) {
@@ -68,17 +71,55 @@ function bindUi() {
 // Set to null to use local embedded patterns (fallback)
 const DATA_BASE_URL = 'https://yoshiwatanabe.github.io/drums-trainer-data';
 
+async function loadAudioSamples() {
+    try {
+        // Load sample map
+        const mapResponse = await fetch('audio/sample-map.json');
+        if (!mapResponse.ok) {
+            console.error('Failed to load sample-map.json');
+            return;
+        }
+        state.sampleMap = await mapResponse.json();
+
+        // Create AudioContext if not exists
+        if (!state.audioCtx) {
+            state.audioCtx = new AudioContext();
+        }
+
+        // Load all audio files
+        const loadPromises = [];
+        for (const [key, sample] of Object.entries(state.sampleMap)) {
+            const loadPromise = fetch(sample.file)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => state.audioCtx.decodeAudioData(arrayBuffer))
+                .then(audioBuffer => {
+                    state.audioBuffers[key] = audioBuffer;
+                    console.log(`Loaded sample: ${key} (${sample.file})`);
+                })
+                .catch(err => {
+                    console.warn(`Failed to load ${sample.file}:`, err);
+                });
+            loadPromises.push(loadPromise);
+        }
+
+        await Promise.all(loadPromises);
+        console.log(`Audio samples loaded: ${Object.keys(state.audioBuffers).length} sounds`);
+    } catch (error) {
+        console.error('Error loading audio samples:', error);
+    }
+}
+
 async function loadPatterns() {
     try {
         const loaded = [];
-        
+
         // Try loading from GitHub Pages first
         if (DATA_BASE_URL) {
             try {
                 const indexResponse = await fetch(`${DATA_BASE_URL}/patterns/index.json`);
                 if (indexResponse.ok) {
                     const index = await indexResponse.json();
-                    
+
                     for (const filename of index.patterns) {
                         const patternResponse = await fetch(`${DATA_BASE_URL}/patterns/${filename}`);
                         if (patternResponse.ok) {
@@ -91,7 +132,7 @@ async function loadPatterns() {
                             loaded.push(pattern);
                         }
                     }
-                    
+
                     if (loaded.length > 0) {
                         console.log(`Loaded ${loaded.length} patterns from GitHub Pages`);
                         state.patterns = loaded;
@@ -103,13 +144,13 @@ async function loadPatterns() {
                 console.warn('Failed to load from GitHub Pages, trying local fallback', fetchError);
             }
         }
-        
+
         // Fallback: Try local patterns/ folder
         try {
             const localIndex = await fetch('patterns/index.json');
             if (localIndex.ok) {
                 const index = await localIndex.json();
-                
+
                 for (const filename of index.patterns) {
                     const patternResponse = await fetch(`patterns/${filename}`);
                     if (patternResponse.ok) {
@@ -122,7 +163,7 @@ async function loadPatterns() {
                         loaded.push(pattern);
                     }
                 }
-                
+
                 if (loaded.length > 0) {
                     console.log(`Loaded ${loaded.length} patterns from local files`);
                     state.patterns = loaded;
@@ -133,7 +174,7 @@ async function loadPatterns() {
         } catch (localError) {
             console.warn('Failed to load local patterns', localError);
         }
-        
+
         // Final fallback: embedded patterns
         console.log('Using embedded patterns fallback');
         const EMBEDDED_PATTERNS = [
@@ -183,7 +224,7 @@ async function loadPatterns() {
                 }
             }
         ];
-        
+
         for (const pattern of EMBEDDED_PATTERNS) {
             const errors = validatePattern(pattern);
             if (errors.length) {
@@ -358,43 +399,80 @@ function schedulePattern(pattern) {
 
 function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
     const ctx = state.audioCtx;
-    const now = startTime;
-
+    
     // Normalize instrument name (handle aliases)
     const drumType = normalizeDrumName(instrument);
 
+    // Use sample playback if available
+    if (state.audioBuffers[drumType]) {
+        playSample(drumType, startTime, velocity);
+        return;
+    }
+
+    // Fallback to synthesis if sample not found
+    console.warn(`No sample for ${drumType}, using synthesis fallback`);
     switch (drumType) {
         case 'kick':
-            synthKick(ctx, now, velocity);
+            synthKick(ctx, startTime, velocity);
             break;
         case 'snare':
-            synthSnare(ctx, now, velocity);
+            synthSnare(ctx, startTime, velocity);
             break;
         case 'hihat_closed':
-            synthHiHat(ctx, now, velocity, false);
+            synthHiHat(ctx, startTime, velocity, false);
             break;
         case 'hihat_open':
-            synthHiHat(ctx, now, velocity, true);
+            synthHiHat(ctx, startTime, velocity, true);
             break;
         case 'ride':
         case 'ride_bell':
-            synthRide(ctx, now, velocity);
+            synthRide(ctx, startTime, velocity);
             break;
         case 'crash_a':
         case 'crash_b':
-            synthCrash(ctx, now, velocity);
+            synthCrash(ctx, startTime, velocity);
             break;
         case 'tom_high':
         case 'tom_mid':
         case 'tom_floor':
-            synthTom(ctx, now, velocity, drumType);
+            synthTom(ctx, startTime, velocity, drumType);
             break;
         case 'rim':
-            synthRim(ctx, now, velocity);
+            synthRim(ctx, startTime, velocity);
             break;
         default:
             console.warn('Unknown drum:', instrument);
     }
+}
+
+function playSample(drumType, startTime, velocity = 0.7) {
+    const ctx = state.audioCtx;
+    const buffer = state.audioBuffers[drumType];
+    
+    if (!buffer) {
+        console.warn(`No buffer for ${drumType}`);
+        return;
+    }
+
+    const source = ctx.createBufferSource();
+    const gainNode = ctx.createGain();
+    
+    source.buffer = buffer;
+    
+    // Apply velocity trim from sample-map if available
+    let volumeAdjustment = 0;
+    if (state.sampleMap && state.sampleMap[drumType]) {
+        volumeAdjustment = state.sampleMap[drumType].velocityTrim || 0;
+    }
+    
+    // Convert velocity (0-1) and apply trim (in dB)
+    const baseGain = velocity;
+    const trimMultiplier = Math.pow(10, volumeAdjustment / 20); // dB to linear
+    gainNode.gain.value = baseGain * trimMultiplier;
+    
+    source.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    source.start(startTime);
 }
 
 function normalizeDrumName(name) {
