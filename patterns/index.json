@@ -1,6 +1,7 @@
-[
-  {
-    "id": "patt_001",
-    "file": "patterns/example_001.json"
-  }
-]
+{
+  "patterns": [
+    "patt_001.json",
+    "patt_002.json",
+    "patt_003.json"
+  ]
+}

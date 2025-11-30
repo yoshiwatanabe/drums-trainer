@@ -1,0 +1,46 @@
+{
+  "id": "patt_003",
+  "title": "Ride Cymbal Groove",
+  "tags": ["ride", "jazz", "permutation"],
+  "time_signature": "4/4",
+  "bpm_default": 70,
+  "loop_length_beats": 4,
+  "events": [
+    { "time": 0, "note": "kick", "velocity": 100 },
+    { "time": 0, "note": "ride", "velocity": 85 },
+    { "time": 0.5, "note": "ride", "velocity": 70 },
+    { "time": 1, "note": "snare", "velocity": 90 },
+    { "time": 1, "note": "ride", "velocity": 85 },
+    { "time": 1.5, "note": "ride", "velocity": 70 },
+    { "time": 2, "note": "kick", "velocity": 100 },
+    { "time": 2, "note": "ride", "velocity": 85 },
+    { "time": 2.5, "note": "ride", "velocity": 70 },
+    { "time": 3, "note": "snare", "velocity": 90 },
+    { "time": 3, "note": "ride", "velocity": 85 },
+    { "time": 3.5, "note": "ride", "velocity": 70 }
+  ],
+  "notation": {
+    "vexflow": {
+      "staves": [
+        {
+          "timeSignature": "4/4",
+          "voices": [
+            {
+              "clef": "percussion",
+              "notes": [
+                { "keys": ["f/4", "f/5"], "duration": "8" },
+                { "keys": ["f/5"], "duration": "8" },
+                { "keys": ["c/5", "f/5"], "duration": "8" },
+                { "keys": ["f/5"], "duration": "8" },
+                { "keys": ["f/4", "f/5"], "duration": "8" },
+                { "keys": ["f/5"], "duration": "8" },
+                { "keys": ["c/5", "f/5"], "duration": "8" },
+                { "keys": ["f/5"], "duration": "8" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

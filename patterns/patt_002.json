@@ -1,0 +1,46 @@
+{
+  "id": "patt_002",
+  "title": "Basic Rock Beat",
+  "tags": ["8beat", "rock", "basic"],
+  "time_signature": "4/4",
+  "bpm_default": 70,
+  "loop_length_beats": 4,
+  "events": [
+    { "time": 0, "note": "kick", "velocity": 110 },
+    { "time": 0, "note": "hihat_closed", "velocity": 80 },
+    { "time": 0.5, "note": "hihat_closed", "velocity": 80 },
+    { "time": 1, "note": "snare", "velocity": 100 },
+    { "time": 1, "note": "hihat_closed", "velocity": 80 },
+    { "time": 1.5, "note": "hihat_closed", "velocity": 80 },
+    { "time": 2, "note": "kick", "velocity": 110 },
+    { "time": 2, "note": "hihat_closed", "velocity": 80 },
+    { "time": 2.5, "note": "hihat_closed", "velocity": 80 },
+    { "time": 3, "note": "snare", "velocity": 100 },
+    { "time": 3, "note": "hihat_closed", "velocity": 80 },
+    { "time": 3.5, "note": "hihat_closed", "velocity": 80 }
+  ],
+  "notation": {
+    "vexflow": {
+      "staves": [
+        {
+          "timeSignature": "4/4",
+          "voices": [
+            {
+              "clef": "percussion",
+              "notes": [
+                { "keys": ["f/4", "g/5"], "duration": "8" },
+                { "keys": ["g/5"], "duration": "8" },
+                { "keys": ["c/5", "g/5"], "duration": "8" },
+                { "keys": ["g/5"], "duration": "8" },
+                { "keys": ["f/4", "g/5"], "duration": "8" },
+                { "keys": ["g/5"], "duration": "8" },
+                { "keys": ["c/5", "g/5"], "duration": "8" },
+                { "keys": ["g/5"], "duration": "8" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

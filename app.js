@@ -64,150 +64,126 @@ function bindUi() {
     });
 }
 
-// Embedded pattern data (no fetch required)
-const EMBEDDED_PATTERNS = [
-    {
-        "id": "patt_001",
-        "title": "Syncopated HH Open Variation",
-        "tags": ["8beat", "hihat-open", "permutation"],
-        "time_signature": "4/4",
-        "bpm_default": 70,
-        "loop_length_beats": 4,
-        "events": [
-            { "time": 0, "note": "kick", "velocity": 110 },
-            { "time": 0, "note": "hihat_closed", "velocity": 80 },
-            { "time": 0.25, "note": "snare", "velocity": 100 },
-            { "time": 0.5, "note": "hihat_open", "velocity": 90 },
-            { "time": 0.75, "note": "snare", "velocity": 90 },
-            { "time": 1, "note": "kick", "velocity": 110 },
-            { "time": 1.5, "note": "hihat_closed", "velocity": 80 },
-            { "time": 2, "note": "kick", "velocity": 110 },
-            { "time": 2.5, "note": "snare", "velocity": 100 },
-            { "time": 3, "note": "kick", "velocity": 110 },
-            { "time": 3.5, "note": "snare", "velocity": 100 }
-        ],
-        "notation": {
-            "vexflow": {
-                "staves": [
-                    {
-                        "timeSignature": "4/4",
-                        "voices": [
-                            {
-                                "clef": "percussion",
-                                "notes": [
-                                    { "keys": ["f/4", "g/5"], "duration": "8" },
-                                    { "keys": ["c/5"], "duration": "8" },
-                                    { "keys": ["g/5"], "duration": "8" },
-                                    { "keys": ["c/5"], "duration": "8" },
-                                    { "keys": ["f/4"], "duration": "8" },
-                                    { "keys": ["g/5"], "duration": "8" },
-                                    { "keys": ["f/4"], "duration": "8" },
-                                    { "keys": ["c/5"], "duration": "8" }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    },
-    {
-        "id": "patt_002",
-        "title": "Basic Rock Beat",
-        "tags": ["8beat", "rock", "basic"],
-        "time_signature": "4/4",
-        "bpm_default": 70,
-        "loop_length_beats": 4,
-        "events": [
-            { "time": 0, "note": "kick", "velocity": 110 },
-            { "time": 0, "note": "hihat_closed", "velocity": 80 },
-            { "time": 0.5, "note": "hihat_closed", "velocity": 80 },
-            { "time": 1, "note": "snare", "velocity": 100 },
-            { "time": 1, "note": "hihat_closed", "velocity": 80 },
-            { "time": 1.5, "note": "hihat_closed", "velocity": 80 },
-            { "time": 2, "note": "kick", "velocity": 110 },
-            { "time": 2, "note": "hihat_closed", "velocity": 80 },
-            { "time": 2.5, "note": "hihat_closed", "velocity": 80 },
-            { "time": 3, "note": "snare", "velocity": 100 },
-            { "time": 3, "note": "hihat_closed", "velocity": 80 },
-            { "time": 3.5, "note": "hihat_closed", "velocity": 80 }
-        ],
-        "notation": {
-            "vexflow": {
-                "staves": [
-                    {
-                        "timeSignature": "4/4",
-                        "voices": [
-                            {
-                                "clef": "percussion",
-                                "notes": [
-                                    { "keys": ["f/4", "g/5"], "duration": "8" },
-                                    { "keys": ["g/5"], "duration": "8" },
-                                    { "keys": ["c/5", "g/5"], "duration": "8" },
-                                    { "keys": ["g/5"], "duration": "8" },
-                                    { "keys": ["f/4", "g/5"], "duration": "8" },
-                                    { "keys": ["g/5"], "duration": "8" },
-                                    { "keys": ["c/5", "g/5"], "duration": "8" },
-                                    { "keys": ["g/5"], "duration": "8" }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    },
-    {
-        "id": "patt_003",
-        "title": "Ride Cymbal Groove",
-        "tags": ["ride", "jazz", "permutation"],
-        "time_signature": "4/4",
-        "bpm_default": 70,
-        "loop_length_beats": 4,
-        "events": [
-            { "time": 0, "note": "kick", "velocity": 100 },
-            { "time": 0, "note": "ride", "velocity": 85 },
-            { "time": 0.5, "note": "ride", "velocity": 70 },
-            { "time": 1, "note": "snare", "velocity": 90 },
-            { "time": 1, "note": "ride", "velocity": 85 },
-            { "time": 1.5, "note": "ride", "velocity": 70 },
-            { "time": 2, "note": "kick", "velocity": 100 },
-            { "time": 2, "note": "ride", "velocity": 85 },
-            { "time": 2.5, "note": "ride", "velocity": 70 },
-            { "time": 3, "note": "snare", "velocity": 90 },
-            { "time": 3, "note": "ride", "velocity": 85 },
-            { "time": 3.5, "note": "ride", "velocity": 70 }
-        ],
-        "notation": {
-            "vexflow": {
-                "staves": [
-                    {
-                        "timeSignature": "4/4",
-                        "voices": [
-                            {
-                                "clef": "percussion",
-                                "notes": [
-                                    { "keys": ["f/4", "f/5"], "duration": "8" },
-                                    { "keys": ["f/5"], "duration": "8" },
-                                    { "keys": ["c/5", "f/5"], "duration": "8" },
-                                    { "keys": ["f/5"], "duration": "8" },
-                                    { "keys": ["f/4", "f/5"], "duration": "8" },
-                                    { "keys": ["f/5"], "duration": "8" },
-                                    { "keys": ["c/5", "f/5"], "duration": "8" },
-                                    { "keys": ["f/5"], "duration": "8" }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    }
-];
+// Configuration: GitHub Pages data repository URL
+// Set to null to use local embedded patterns (fallback)
+const DATA_BASE_URL = 'https://yoshiwatanabe.github.io/drums-trainer-data';
 
 async function loadPatterns() {
     try {
         const loaded = [];
+        
+        // Try loading from GitHub Pages first
+        if (DATA_BASE_URL) {
+            try {
+                const indexResponse = await fetch(`${DATA_BASE_URL}/patterns/index.json`);
+                if (indexResponse.ok) {
+                    const index = await indexResponse.json();
+                    
+                    for (const filename of index.patterns) {
+                        const patternResponse = await fetch(`${DATA_BASE_URL}/patterns/${filename}`);
+                        if (patternResponse.ok) {
+                            const pattern = await patternResponse.json();
+                            const errors = validatePattern(pattern);
+                            if (errors.length) {
+                                console.warn(`Skipping pattern ${pattern.id}`, errors);
+                                continue;
+                            }
+                            loaded.push(pattern);
+                        }
+                    }
+                    
+                    if (loaded.length > 0) {
+                        console.log(`Loaded ${loaded.length} patterns from GitHub Pages`);
+                        state.patterns = loaded;
+                        state.filtered = loaded;
+                        return;
+                    }
+                }
+            } catch (fetchError) {
+                console.warn('Failed to load from GitHub Pages, trying local fallback', fetchError);
+            }
+        }
+        
+        // Fallback: Try local patterns/ folder
+        try {
+            const localIndex = await fetch('patterns/index.json');
+            if (localIndex.ok) {
+                const index = await localIndex.json();
+                
+                for (const filename of index.patterns) {
+                    const patternResponse = await fetch(`patterns/${filename}`);
+                    if (patternResponse.ok) {
+                        const pattern = await patternResponse.json();
+                        const errors = validatePattern(pattern);
+                        if (errors.length) {
+                            console.warn(`Skipping pattern ${pattern.id}`, errors);
+                            continue;
+                        }
+                        loaded.push(pattern);
+                    }
+                }
+                
+                if (loaded.length > 0) {
+                    console.log(`Loaded ${loaded.length} patterns from local files`);
+                    state.patterns = loaded;
+                    state.filtered = loaded;
+                    return;
+                }
+            }
+        } catch (localError) {
+            console.warn('Failed to load local patterns', localError);
+        }
+        
+        // Final fallback: embedded patterns
+        console.log('Using embedded patterns fallback');
+        const EMBEDDED_PATTERNS = [
+            {
+                "id": "patt_001",
+                "title": "Syncopated HH Open Variation",
+                "tags": ["8beat", "hihat-open", "permutation"],
+                "time_signature": "4/4",
+                "bpm_default": 70,
+                "loop_length_beats": 4,
+                "events": [
+                    { "time": 0, "note": "kick", "velocity": 110 },
+                    { "time": 0, "note": "hihat_closed", "velocity": 80 },
+                    { "time": 0.25, "note": "snare", "velocity": 100 },
+                    { "time": 0.5, "note": "hihat_open", "velocity": 90 },
+                    { "time": 0.75, "note": "snare", "velocity": 90 },
+                    { "time": 1, "note": "kick", "velocity": 110 },
+                    { "time": 1.5, "note": "hihat_closed", "velocity": 80 },
+                    { "time": 2, "note": "kick", "velocity": 110 },
+                    { "time": 2.5, "note": "snare", "velocity": 100 },
+                    { "time": 3, "note": "kick", "velocity": 110 },
+                    { "time": 3.5, "note": "snare", "velocity": 100 }
+                ],
+                "notation": {
+                    "vexflow": {
+                        "staves": [
+                            {
+                                "timeSignature": "4/4",
+                                "voices": [
+                                    {
+                                        "clef": "percussion",
+                                        "notes": [
+                                            { "keys": ["f/4", "g/5"], "duration": "8" },
+                                            { "keys": ["c/5"], "duration": "8" },
+                                            { "keys": ["g/5"], "duration": "8" },
+                                            { "keys": ["c/5"], "duration": "8" },
+                                            { "keys": ["f/4"], "duration": "8" },
+                                            { "keys": ["g/5"], "duration": "8" },
+                                            { "keys": ["f/4"], "duration": "8" },
+                                            { "keys": ["c/5"], "duration": "8" }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ];
+        
         for (const pattern of EMBEDDED_PATTERNS) {
             const errors = validatePattern(pattern);
             if (errors.length) {
