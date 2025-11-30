@@ -109,6 +109,98 @@ const EMBEDDED_PATTERNS = [
                 ]
             }
         }
+    },
+    {
+        "id": "patt_002",
+        "title": "Basic Rock Beat",
+        "tags": ["8beat", "rock", "basic"],
+        "time_signature": "4/4",
+        "bpm_default": 120,
+        "loop_length_beats": 4,
+        "events": [
+            { "time": 0, "note": "kick", "velocity": 110 },
+            { "time": 0, "note": "hihat_closed", "velocity": 80 },
+            { "time": 0.5, "note": "hihat_closed", "velocity": 80 },
+            { "time": 1, "note": "snare", "velocity": 100 },
+            { "time": 1, "note": "hihat_closed", "velocity": 80 },
+            { "time": 1.5, "note": "hihat_closed", "velocity": 80 },
+            { "time": 2, "note": "kick", "velocity": 110 },
+            { "time": 2, "note": "hihat_closed", "velocity": 80 },
+            { "time": 2.5, "note": "hihat_closed", "velocity": 80 },
+            { "time": 3, "note": "snare", "velocity": 100 },
+            { "time": 3, "note": "hihat_closed", "velocity": 80 },
+            { "time": 3.5, "note": "hihat_closed", "velocity": 80 }
+        ],
+        "notation": {
+            "vexflow": {
+                "staves": [
+                    {
+                        "timeSignature": "4/4",
+                        "voices": [
+                            {
+                                "clef": "percussion",
+                                "notes": [
+                                    { "keys": ["f/4", "g/5"], "duration": "8" },
+                                    { "keys": ["g/5"], "duration": "8" },
+                                    { "keys": ["c/5", "g/5"], "duration": "8" },
+                                    { "keys": ["g/5"], "duration": "8" },
+                                    { "keys": ["f/4", "g/5"], "duration": "8" },
+                                    { "keys": ["g/5"], "duration": "8" },
+                                    { "keys": ["c/5", "g/5"], "duration": "8" },
+                                    { "keys": ["g/5"], "duration": "8" }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "id": "patt_003",
+        "title": "Ride Cymbal Groove",
+        "tags": ["ride", "jazz", "permutation"],
+        "time_signature": "4/4",
+        "bpm_default": 140,
+        "loop_length_beats": 4,
+        "events": [
+            { "time": 0, "note": "kick", "velocity": 100 },
+            { "time": 0, "note": "ride", "velocity": 85 },
+            { "time": 0.5, "note": "ride", "velocity": 70 },
+            { "time": 1, "note": "snare", "velocity": 90 },
+            { "time": 1, "note": "ride", "velocity": 85 },
+            { "time": 1.5, "note": "ride", "velocity": 70 },
+            { "time": 2, "note": "kick", "velocity": 100 },
+            { "time": 2, "note": "ride", "velocity": 85 },
+            { "time": 2.5, "note": "ride", "velocity": 70 },
+            { "time": 3, "note": "snare", "velocity": 90 },
+            { "time": 3, "note": "ride", "velocity": 85 },
+            { "time": 3.5, "note": "ride", "velocity": 70 }
+        ],
+        "notation": {
+            "vexflow": {
+                "staves": [
+                    {
+                        "timeSignature": "4/4",
+                        "voices": [
+                            {
+                                "clef": "percussion",
+                                "notes": [
+                                    { "keys": ["f/4", "f/5"], "duration": "8" },
+                                    { "keys": ["f/5"], "duration": "8" },
+                                    { "keys": ["c/5", "f/5"], "duration": "8" },
+                                    { "keys": ["f/5"], "duration": "8" },
+                                    { "keys": ["f/4", "f/5"], "duration": "8" },
+                                    { "keys": ["f/5"], "duration": "8" },
+                                    { "keys": ["c/5", "f/5"], "duration": "8" },
+                                    { "keys": ["f/5"], "duration": "8" }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
     }
 ];
 
@@ -275,12 +367,9 @@ function schedulePattern(pattern) {
     const bpm = state.bpm;
     const secondsPerBeat = 60 / bpm;
     const startTime = state.audioCtx.currentTime + 0.2;
-    console.log('Current time:', state.audioCtx.currentTime, 'Start time:', startTime);
-    console.log('Scheduling', pattern.events.length, 'events at BPM', bpm);
     pattern.events.forEach((evt) => {
         const velocity = evt.velocity ? evt.velocity / 127 : 0.7;
         const when = startTime + evt.time * secondsPerBeat;
-        console.log('Event:', evt.note, 'at time', evt.time, 'beats = absolute', when, 's, velocity', velocity);
         synthesizeDrumSound(evt.note, when, velocity);
     });
     if (state.isLooping) {
@@ -296,7 +385,6 @@ function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
 
     // Normalize instrument name (handle aliases)
     const drumType = normalizeDrumName(instrument);
-    console.log('Synthesizing:', instrument, '->', drumType, 'at', startTime);
 
     switch (drumType) {
         case 'kick':
@@ -352,7 +440,6 @@ function normalizeDrumName(name) {
 }
 
 function synthKick(ctx, time, velocity) {
-    console.log('synthKick called', time, velocity);
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
@@ -368,7 +455,6 @@ function synthKick(ctx, time, velocity) {
     osc.start(time);
     osc.stop(time + 0.3);
 }function synthSnare(ctx, time, velocity) {
-    console.log('synthSnare called', time, velocity);
     // Simplified: just use oscillator for now
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -384,7 +470,6 @@ function synthKick(ctx, time, velocity) {
     osc.start(time);
     osc.stop(time + 0.1);
 }function synthHiHat(ctx, time, velocity, open = false) {
-    console.log('synthHiHat called', time, velocity, open);
     // Simplified: use square wave as placeholder
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
