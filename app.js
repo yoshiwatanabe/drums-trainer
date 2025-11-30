@@ -198,14 +198,15 @@ async function loadGroupPage(group, pageIndex) {
 
 async function loadGroupPatterns(group) {
     const patterns = [];
+    const cacheBuster = Date.now(); // Force cache refresh
 
     for (const filename of group.patterns) {
         try {
             let patternResponse;
             if (DATA_BASE_URL) {
-                patternResponse = await fetch(`${DATA_BASE_URL}/patterns/${filename}`);
+                patternResponse = await fetch(`${DATA_BASE_URL}/patterns/${filename}?v=${cacheBuster}`);
             } else {
-                patternResponse = await fetch(`patterns/${filename}`);
+                patternResponse = await fetch(`patterns/${filename}?v=${cacheBuster}`);
             }
 
             if (patternResponse.ok) {
