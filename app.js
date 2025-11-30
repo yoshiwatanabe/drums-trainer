@@ -511,10 +511,26 @@ function schedulePattern(pattern) {
     const secondsPerBeat = 60 / bpm;
     const startTime = state.audioCtx.currentTime + 0.1;
 
+    // Track open hihat sources to stop them when closed hihat plays
+    const openHihatSources = [];
+
     pattern.events.forEach((evt) => {
         const velocity = evt.velocity ? evt.velocity / 127 : 0.7;
         const when = startTime + evt.time * secondsPerBeat;
-        synthesizeDrumSound(evt.note, when, velocity);
+        
+        // Stop any playing open hihat when closed hihat is hit
+        if (evt.note === 'hihat_closed') {
+            openHihatSources.forEach(src => {
+                if (src.stopTime > when) {
+                    src.source.stop(when);
+                }
+            });
+        }
+        
+        const hihatSource = synthesizeDrumSound(evt.note, when, velocity);
+        if (evt.note === 'hihat_open' && hihatSource) {
+            openHihatSources.push(hihatSource);
+        }
     });
 
     if (state.isLooping) {
@@ -537,8 +553,7 @@ function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
     const drumType = normalizeDrumName(instrument);
 
     if (state.audioBuffers[drumType]) {
-        playSample(drumType, startTime, velocity);
-        return;
+        return playSample(drumType, startTime, velocity);
     }
 
     console.warn(`No sample for ${drumType}, using synthesis fallback`);
@@ -554,18 +569,18 @@ function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
             synthHiHat(ctx, startTime, velocity, false);
             break;
         case 'hihat_open':
-            synthHiHat(ctx, startTime, velocity, true);
-            break;
+            return synthHiHat(ctx, startTime, velocity, true);
         default:
             console.warn('Unknown drum:', instrument);
     }
+    return null;
 }
 
 function playSample(drumType, startTime, velocity = 0.7) {
     const ctx = state.audioCtx;
     const buffer = state.audioBuffers[drumType];
 
-    if (!buffer) return;
+    if (!buffer) return null;
 
     const source = ctx.createBufferSource();
     const gainNode = ctx.createGain();
@@ -584,6 +599,10 @@ function playSample(drumType, startTime, velocity = 0.7) {
     source.connect(gainNode);
     gainNode.connect(ctx.destination);
     source.start(startTime);
+    
+    // Return source and planned stop time for open hihat tracking
+    const stopTime = drumType === 'hihat_open' ? startTime + buffer.duration : startTime + 0.1;
+    return { source, stopTime };
 }
 
 function normalizeDrumName(name) {
