@@ -284,12 +284,12 @@ function analyzePattern(pattern) {
     if (!pattern.events) return null;
 
     const features = [];
-    
+
     // Count kicks, snares, and analyze timing
     const kicks = pattern.events.filter(e => e.note === 'kick');
     const snares = pattern.events.filter(e => e.note === 'snare');
     const ghostNotes = pattern.events.filter(e => e.velocity < 70);
-    
+
     // Check for syncopation (notes on offbeats)
     const offbeatNotes = pattern.events.filter(e => {
         const t = e.time;
@@ -297,7 +297,7 @@ function analyzePattern(pattern) {
         const mod = (t * 4) % 1;
         return mod > 0.1 && mod < 0.9 && (e.note === 'kick' || e.note === 'snare');
     });
-    
+
     // Kick density
     if (kicks.length >= 5) {
         features.push(`🥁 ${kicks.length}回のキック（高密度）`);
@@ -306,29 +306,29 @@ function analyzePattern(pattern) {
     } else {
         features.push(`🥁 ${kicks.length}回のキック（スパース）`);
     }
-    
+
     // Ghost notes
     if (ghostNotes.length > 0) {
         features.push(`👻 ゴーストノート ${ghostNotes.length}個（弱い音、ベロシティ<70）`);
     }
-    
+
     // Syncopation
     if (offbeatNotes.length >= 2) {
         features.push(`🎵 シンコペーション（裏拍強調、${offbeatNotes.length}箇所）`);
     }
-    
+
     // Backbeat check
     const backbeatSnares = snares.filter(s => {
         const beat = Math.round(s.time);
         return beat === 1 || beat === 3; // 2nd and 4th beats
     });
-    
+
     if (backbeatSnares.length === 2) {
         features.push(`✓ バックビート（2・4拍目スネア）`);
     } else if (backbeatSnares.length > 0) {
         features.push(`⚠ 変則バックビート`);
     }
-    
+
     return features.length > 0 ? features.join(' · ') : null;
 }
 
