@@ -11,42 +11,24 @@
   <body>
     <header>
       <h1>Drum Practice Trainer</h1>
+      <div id="globalControls">
+        <label>BPM
+          <input id="bpmInput" type="number" min="40" max="240" value="70" />
+          <input id="bpmRange" type="range" min="60" max="200" value="70" />
+          <span id="bpmValue">70</span>
+        </label>
+        <label>
+          <input id="loopToggle" type="checkbox" checked /> Loop
+        </label>
+      </div>
     </header>
     <main>
       <section id="sidebar">
-        <h2>Patterns</h2>
-        <div class="filter-group">
-          <label for="searchInput">Search</label>
-          <input id="searchInput" type="text" placeholder="title..." />
-        </div>
-        <div class="filter-group">
-          <label for="tagInput">Tags</label>
-          <input id="tagInput" type="text" placeholder="rock hihat-open" />
-        </div>
-        <div class="filter-group">
-          <label for="bpmRange">BPM</label>
-          <input id="bpmRange" type="range" min="60" max="200" value="70" />
-          <span id="bpmRangeValue">70</span>
-        </div>
-        <ul id="patternList"></ul>
+        <h2>Pattern Groups</h2>
+        <div id="groupList"></div>
       </section>
       <section id="content">
-        <div id="patternMeta">
-          <h2 id="patternTitle">Select a pattern</h2>
-          <p id="patternTags"></p>
-        </div>
-        <div id="controls">
-          <label>BPM
-            <input id="bpmInput" type="number" min="40" max="240" value="70" />
-          </label>
-          <button id="playBtn">Play</button>
-          <button id="stopBtn">Stop</button>
-          <label>
-            <input id="loopToggle" type="checkbox" checked /> Loop
-          </label>
-        </div>
-        <div id="notation"></div>
-        <div id="patternDetails"></div>
+        <div id="patternsGrid"></div>
       </section>
     </main>
   </body>
