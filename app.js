@@ -427,10 +427,15 @@ function renderNotation(pattern, container) {
                         } else if (key === 'g/5') { // hihat
                             const hihatOpen = eventsAtTime.find(e => e.note === 'hihat_open');
                             const hihatClosed = eventsAtTime.find(e => e.note === 'hihat_closed');
-                            
+
                             if (hihatOpen) {
-                                // Open hihat - brighter orange
+                                // Open hihat - brighter orange with "o" annotation
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#ff9500', strokeStyle: '#e67e00' });
+                                // Add "o" marker for open hihat
+                                const annotation = new VF.Annotation('o');
+                                annotation.setFont('Arial', 10, 'bold');
+                                annotation.setVerticalJustification(VF.Annotation.VerticalJustify.TOP);
+                                staveNote.addModifier(annotation, keyIndex);
                             } else if (hihatClosed) {
                                 // Closed hihat - standard orange
                                 staveNote.setKeyStyle(keyIndex, { fillStyle: '#f39c12', strokeStyle: '#d68910' });
@@ -440,12 +445,6 @@ function renderNotation(pattern, container) {
                             }
                         }
                     });
-                    
-                    // Add "o" for open hihat
-                    const hasOpenHihat = eventsAtTime.find(e => e.note === 'hihat_open');
-                    if (hasOpenHihat) {
-                        staveNote.addModifier(new VF.Annotation('o').setPosition(VF.Annotation.Position.ABOVE), 0);
-                    }
 
                     // Add accent for high velocity notes
                     const highVelocityEvent = eventsAtTime.find(e =>
