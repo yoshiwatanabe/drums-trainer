@@ -94,8 +94,14 @@ const EMBEDDED_PATTERNS = [
                             {
                                 "clef": "percussion",
                                 "notes": [
-                                    { "keys": ["f/3"], "duration": "4", "articulation": "accent" },
-                                    { "keys": ["c/4"], "duration": "8" }
+                                    { "keys": ["f/4", "g/5"], "duration": "8" },
+                                    { "keys": ["c/5"], "duration": "8" },
+                                    { "keys": ["g/5"], "duration": "8" },
+                                    { "keys": ["c/5"], "duration": "8" },
+                                    { "keys": ["f/4"], "duration": "8" },
+                                    { "keys": ["g/5"], "duration": "8" },
+                                    { "keys": ["f/4"], "duration": "8" },
+                                    { "keys": ["c/5"], "duration": "8" }
                                 ]
                             }
                         ]
@@ -180,14 +186,14 @@ function renderNotation(pattern) {
         dom.notation.textContent = 'Notation data missing';
         return;
     }
-    
+
     // Wait for VexFlow to load
     if (typeof Vex === 'undefined') {
         dom.notation.textContent = 'Loading notation library...';
         setTimeout(() => renderNotation(pattern), 100);
         return;
     }
-    
+
     const VF = Vex.Flow;
     const staveData = pattern.notation.vexflow.staves || [];
     const width = pattern.notation.vexflow.width || 640;
@@ -280,10 +286,10 @@ function schedulePattern(pattern) {
 function synthesizeDrumSound(instrument, startTime, velocity = 0.7) {
     const ctx = state.audioCtx;
     const now = startTime;
-    
+
     // Normalize instrument name (handle aliases)
     const drumType = normalizeDrumName(instrument);
-    
+
     switch (drumType) {
         case 'kick':
             synthKick(ctx, now, velocity);
@@ -340,13 +346,13 @@ function normalizeDrumName(name) {
 function synthKick(ctx, time, velocity) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.frequency.setValueAtTime(150, time);
     osc.frequency.exponentialRampToValueAtTime(40, time + 0.05);
-    
+
     gain.gain.setValueAtTime(velocity, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
-    
+
     osc.connect(gain).connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.4);
@@ -360,7 +366,7 @@ function synthSnare(ctx, time, velocity) {
     oscGain.gain.setValueAtTime(velocity * 0.3, time);
     oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
     osc.connect(oscGain).connect(ctx.destination);
-    
+
     // Noise component
     const bufferSize = ctx.sampleRate * 0.2;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -374,10 +380,10 @@ function synthSnare(ctx, time, velocity) {
     const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = 'highpass';
     noiseFilter.frequency.setValueAtTime(1000, time);
-    
+
     noiseGain.gain.setValueAtTime(velocity * 0.5, time);
     noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
-    
+
     noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.15);
@@ -397,10 +403,10 @@ function synthHiHat(ctx, time, velocity, open = false) {
     filter.type = 'highpass';
     filter.frequency.setValueAtTime(7000, time);
     const gain = ctx.createGain();
-    
+
     gain.gain.setValueAtTime(velocity * 0.3, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + (open ? 0.3 : 0.08));
-    
+
     noise.connect(filter).connect(gain).connect(ctx.destination);
     noise.start(time);
 }
@@ -419,10 +425,10 @@ function synthRide(ctx, time, velocity) {
     filter.frequency.setValueAtTime(3000, time);
     filter.Q.setValueAtTime(1, time);
     const gain = ctx.createGain();
-    
+
     gain.gain.setValueAtTime(velocity * 0.25, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-    
+
     noise.connect(filter).connect(gain).connect(ctx.destination);
     noise.start(time);
 }
@@ -441,10 +447,10 @@ function synthCrash(ctx, time, velocity) {
     filter.frequency.setValueAtTime(5000, time);
     filter.Q.setValueAtTime(0.5, time);
     const gain = ctx.createGain();
-    
+
     gain.gain.setValueAtTime(velocity * 0.4, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + 1.5);
-    
+
     noise.connect(filter).connect(gain).connect(ctx.destination);
     noise.start(time);
 }
@@ -456,16 +462,16 @@ function synthTom(ctx, time, velocity, type) {
         'tom_floor': 100
     };
     const freq = frequencies[type] || 150;
-    
+
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.frequency.setValueAtTime(freq, time);
     osc.frequency.exponentialRampToValueAtTime(freq * 0.7, time + 0.08);
-    
+
     gain.gain.setValueAtTime(velocity * 0.6, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
-    
+
     osc.connect(gain).connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.3);
@@ -474,13 +480,13 @@ function synthTom(ctx, time, velocity, type) {
 function synthRim(ctx, time, velocity) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.frequency.setValueAtTime(400, time);
     osc.frequency.exponentialRampToValueAtTime(200, time + 0.01);
-    
+
     gain.gain.setValueAtTime(velocity * 0.4, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
-    
+
     osc.connect(gain).connect(ctx.destination);
     osc.start(time);
     osc.stop(time + 0.05);
