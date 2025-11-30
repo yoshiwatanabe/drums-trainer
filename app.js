@@ -251,6 +251,10 @@ async function playCurrent() {
     if (!state.audioCtx) {
         state.audioCtx = new AudioContext();
     }
+    // Resume AudioContext if suspended (required by browsers)
+    if (state.audioCtx.state === 'suspended') {
+        await state.audioCtx.resume();
+    }
     if (state.isPlaying) {
         stopPlayback();
     }
