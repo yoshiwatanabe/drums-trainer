@@ -337,7 +337,7 @@ function analyzePattern(pattern) {
     // Check for roll patterns (snare + toms in sequence)
     const allToms = [...tomHigh, ...tomMid, ...tomFloor];
     const tomAndSnare = [...snares, ...allToms].sort((a, b) => a.time - b.time);
-    
+
     // Detect roll: 3+ consecutive tom/snare hits after beat 2
     const rollEvents = tomAndSnare.filter(e => e.time >= 1.5);
     if (rollEvents.length >= 3) {
@@ -346,7 +346,7 @@ function analyzePattern(pattern) {
             tomMid.length > 0 ? 'mid' : null,
             tomFloor.length > 0 ? 'floor' : null
         ].filter(Boolean));
-        
+
         if (tomTypes.size === 3) {
             features.push(`🎼 3タムロール（スネア→ハイ→ミッド→フロア）`);
         } else if (tomTypes.size === 2) {
@@ -361,9 +361,9 @@ function analyzePattern(pattern) {
         const tomCount = tomHigh.length + tomMid.length + tomFloor.length;
         if (tomHigh.length > 0 && tomMid.length > 0 && tomFloor.length > 0) {
             features.push(`🥁 3タムフィル（${tomCount}ヒット）`);
-        } else if ((tomHigh.length > 0 && tomMid.length > 0) || 
-                   (tomMid.length > 0 && tomFloor.length > 0) ||
-                   (tomHigh.length > 0 && tomFloor.length > 0)) {
+        } else if ((tomHigh.length > 0 && tomMid.length > 0) ||
+            (tomMid.length > 0 && tomFloor.length > 0) ||
+            (tomHigh.length > 0 && tomFloor.length > 0)) {
             features.push(`🥁 2タムフィル（${tomCount}ヒット）`);
         } else {
             features.push(`🥁 シングルタムフィル（${tomCount}ヒット）`);
