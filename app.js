@@ -5,7 +5,7 @@ const state = {
     groups: [],
     loadedPatterns: {}, // groupId -> patterns array
     currentPage: null,
-    bpm: 70,
+    bpm: 90,
     isLooping: true,
     playingPatterns: new Set(), // Set of pattern IDs currently playing
     sampleMap: null,
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', initApp);
 async function initApp() {
     cacheDom();
     bindUi();
-    setBpm(70);
+    setBpm(90);
     showLoading('Loading audio samples...');
     await loadAudioSamples();
     showLoading('Loading pattern index...');
